@@ -141,7 +141,7 @@ export const ROLES: RoleSpec[] = [
 ];
 
 export function getRole(role: string): RoleSpec {
-  return ROLES.find((r) => r.role.toLowerCase() === role.toLowerCase()) ?? ROLES[0];
+  return ROLES.find((r) => r.role.toLowerCase() === role.toLowerCase()) ?? ROLES[0]!;
 }
 
 export function skillPercent(profile: TwinProfile, name: string): number {
@@ -302,12 +302,12 @@ export function buildRoadmap(profile: TwinProfile): Phase[] {
     },
     {
       id: "p2",
-      title: `Master ${g0?.name ?? spec.skills[2].name}`,
+      title: `Master ${g0?.name ?? spec.skills[2]!.name}`,
       subtitle: "Close your single largest career-relevant gap with focused depth.",
       weeks: "Week 3 – 5",
       tasks: [
-        { id: "p2t1", label: `Complete a structured ${g0?.name ?? spec.skills[2].name} course with notes`, skill: g0?.name ?? spec.skills[2].name, outcome: "Concept fluency, not tutorial memory" },
-        { id: "p2t2", label: g1 ? g1.action : "Deepen the second most relevant skill", skill: g1?.name ?? spec.skills[3].name, outcome: `${g1?.name ?? "Skill"} reaches ${g1?.required ?? 70}%` },
+        { id: "p2t1", label: `Complete a structured ${g0?.name ?? spec.skills[2]!.name} course with notes`, skill: g0?.name ?? spec.skills[2]!.name, outcome: "Concept fluency, not tutorial memory" },
+        { id: "p2t2", label: g1 ? g1.action : "Deepen the second most relevant skill", skill: g1?.name ?? spec.skills[3]!.name, outcome: `${g1?.name ?? "Skill"} reaches ${g1?.required ?? 70}%` },
         { id: "p2t3", label: "Write one technical explainer post about what you learned", skill: "Communication", outcome: "Proof of understanding" },
       ],
     },
@@ -317,8 +317,8 @@ export function buildRoadmap(profile: TwinProfile): Phase[] {
       subtitle: "Convert knowledge into artefacts that survive interview questions.",
       weeks: "Week 6 – 8",
       tasks: [
-        { id: "p3t1", label: `Build: ${spec.signatureProjects[0]}`, skill: g0?.name ?? spec.role, outcome: "Flagship portfolio project" },
-        { id: "p3t2", label: `Build: ${spec.signatureProjects[1] ?? spec.signatureProjects[0]}`, skill: g1?.name ?? spec.role, outcome: "Second differentiated project" },
+        { id: "p3t1", label: `Build: ${spec.signatureProjects[0]!}`, skill: g0?.name ?? spec.role, outcome: "Flagship portfolio project" },
+        { id: "p3t2", label: `Build: ${spec.signatureProjects[1] ?? spec.signatureProjects[0]!}`, skill: g1?.name ?? spec.role, outcome: "Second differentiated project" },
         { id: "p3t3", label: "Document each project with problem, approach, metrics and trade-offs", skill: "Storytelling", outcome: "Interview-ready narrative" },
       ],
     },
@@ -363,7 +363,7 @@ export function build30DayPlan(profile: TwinProfile): PlanDay[] {
   const minutes = Math.max(30, Math.round(profile.hoursPerDay * 60));
   const days: PlanDay[] = [];
   for (let d = 1; d <= 30; d++) {
-    const focus = focusPool[Math.floor((d - 1) / 8) % focusPool.length] ?? spec.skills[0].name;
+    const focus = focusPool[Math.floor((d - 1) / 8) % focusPool.length] ?? spec.skills[0]!.name;
     const cycle = (d - 1) % 4;
     let type: PlanDay["type"] = "Learn";
     let task = "";
@@ -461,8 +461,8 @@ export function nextBestActions(profile: TwinProfile): Action[] {
   actions.push({
     id: "a2",
     tag: "Recommended",
-    title: `Build: ${spec.signatureProjects[0]}`,
-    why: `You have ${profile.projects.length} project${profile.projects.length === 1 ? "" : "s"}; this one directly demonstrates ${g0?.name ?? spec.skills[0].name} to a ${spec.role} interviewer.`,
+    title: `Build: ${spec.signatureProjects[0]!}`,
+    why: `You have ${profile.projects.length} project${profile.projects.length === 1 ? "" : "s"}; this one directly demonstrates ${g0?.name ?? spec.skills[0]!.name} to a ${spec.role} interviewer.`,
     time: "2 weeks",
     impact: "+8 project strength",
   });
@@ -504,7 +504,7 @@ export function deriveMemories(profile: TwinProfile): MemoryEntry[] {
   }
   if (profile.projects.length)
     push(
-      `You completed ${profile.projects.length} project${profile.projects.length === 1 ? "" : "s"}, including "${profile.projects[0].title}".`,
+      `You completed ${profile.projects.length} project${profile.projects.length === 1 ? "" : "s"}, including "${profile.projects[0]!.title}".`,
       "project",
     );
   push(`Your target role is ${spec.role} with a ${profile.timelineMonths}-month timeline.`, "goal");
@@ -571,7 +571,7 @@ export function engineAnswer(profile: TwinProfile, question: string) {
     gap: gaps.length ? gaps.slice(0, 3).map((g) => `${g.name} (${g.current}% → ${g.required}%)`).join(", ") : "No critical gaps remaining.",
     action: [
       top ? top.action : "Run 5 mock interviews this week",
-      `Build: ${spec.signatureProjects[0]}`,
+      `Build: ${spec.signatureProjects[0]!}`,
       `Study ${Math.round(profile.hoursPerDay * 60)} minutes per day and mark progress in your 30-day plan`,
     ],
     priority: (top && top.importance === "Critical" ? "High" : "Medium") as "High" | "Medium",

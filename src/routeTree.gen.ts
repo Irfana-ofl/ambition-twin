@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as SkillGapRouteImport } from './routes/skill-gap'
 import { Route as SkillsRouteImport } from './routes/skills'
 import { Route as TwinRouteImport } from './routes/twin'
 
@@ -22,6 +23,11 @@ const IndexRoute = IndexRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SkillGapRoute = SkillGapRouteImport.update({
+  id: '/skill-gap',
+  path: '/skill-gap',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SkillsRoute = SkillsRouteImport.update({
@@ -38,12 +44,14 @@ const TwinRoute = TwinRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/skill-gap': typeof SkillGapRoute
   '/skills': typeof SkillsRoute
   '/twin': typeof TwinRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/skill-gap': typeof SkillGapRoute
   '/skills': typeof SkillsRoute
   '/twin': typeof TwinRoute
 }
@@ -51,20 +59,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/skill-gap': typeof SkillGapRoute
   '/skills': typeof SkillsRoute
   '/twin': typeof TwinRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/skills' | '/twin'
+  fullPaths: '/' | '/dashboard' | '/skill-gap' | '/skills' | '/twin'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/skills' | '/twin'
-  id: '__root__' | '/' | '/dashboard' | '/skills' | '/twin'
+  to: '/' | '/dashboard' | '/skill-gap' | '/skills' | '/twin'
+  id: '__root__' | '/' | '/dashboard' | '/skill-gap' | '/skills' | '/twin'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
+  SkillGapRoute: typeof SkillGapRoute
   SkillsRoute: typeof SkillsRoute
   TwinRoute: typeof TwinRoute
 }
@@ -83,6 +93,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/skill-gap': {
+      id: '/skill-gap'
+      path: '/skill-gap'
+      fullPath: '/skill-gap'
+      preLoaderRoute: typeof SkillGapRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/skills': {
@@ -105,6 +122,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
+  SkillGapRoute: SkillGapRoute,
   SkillsRoute: SkillsRoute,
   TwinRoute: TwinRoute,
 }

@@ -17,6 +17,7 @@ import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PlanRouteImport } from './routes/plan'
 import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as RoadmapRouteImport } from './routes/roadmap'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SimulatorRouteImport } from './routes/simulator'
 import { Route as SkillGapRouteImport } from './routes/skill-gap'
 import { Route as SkillsRouteImport } from './routes/skills'
@@ -62,6 +63,11 @@ const RoadmapRoute = RoadmapRouteImport.update({
   path: '/roadmap',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SimulatorRoute = SimulatorRouteImport.update({
   id: '/simulator',
   path: '/simulator',
@@ -92,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/plan': typeof PlanRoute
   '/progress': typeof ProgressRoute
   '/roadmap': typeof RoadmapRoute
+  '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
   '/skill-gap': typeof SkillGapRoute
   '/skills': typeof SkillsRoute
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/plan': typeof PlanRoute
   '/progress': typeof ProgressRoute
   '/roadmap': typeof RoadmapRoute
+  '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
   '/skill-gap': typeof SkillGapRoute
   '/skills': typeof SkillsRoute
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   '/plan': typeof PlanRoute
   '/progress': typeof ProgressRoute
   '/roadmap': typeof RoadmapRoute
+  '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
   '/skill-gap': typeof SkillGapRoute
   '/skills': typeof SkillsRoute
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
     | '/plan'
     | '/progress'
     | '/roadmap'
+    | '/settings'
     | '/simulator'
     | '/skill-gap'
     | '/skills'
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/plan'
     | '/progress'
     | '/roadmap'
+    | '/settings'
     | '/simulator'
     | '/skill-gap'
     | '/skills'
@@ -165,6 +176,7 @@ export interface FileRouteTypes {
     | '/plan'
     | '/progress'
     | '/roadmap'
+    | '/settings'
     | '/simulator'
     | '/skill-gap'
     | '/skills'
@@ -180,6 +192,7 @@ export interface RootRouteChildren {
   PlanRoute: typeof PlanRoute
   ProgressRoute: typeof ProgressRoute
   RoadmapRoute: typeof RoadmapRoute
+  SettingsRoute: typeof SettingsRoute
   SimulatorRoute: typeof SimulatorRoute
   SkillGapRoute: typeof SkillGapRoute
   SkillsRoute: typeof SkillsRoute
@@ -244,6 +257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RoadmapRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/simulator': {
       id: '/simulator'
       path: '/simulator'
@@ -284,6 +304,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlanRoute: PlanRoute,
   ProgressRoute: ProgressRoute,
   RoadmapRoute: RoadmapRoute,
+  SettingsRoute: SettingsRoute,
   SimulatorRoute: SimulatorRoute,
   SkillGapRoute: SkillGapRoute,
   SkillsRoute: SkillsRoute,

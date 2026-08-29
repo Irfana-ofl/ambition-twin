@@ -77,7 +77,7 @@ function NavList({ onNavigate, idPrefix = "sidebar" }: { onNavigate?: (() => voi
 
 }
 
-function SidebarInner({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
+function SidebarInner({ onNavigate, idPrefix }: { onNavigate?: (() => void) | undefined; idPrefix?: string }) {
   const { profile, isDemo } = useTwin();
   const scores = useScores();
   return (

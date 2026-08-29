@@ -139,9 +139,41 @@ function SidebarInner({ onNavigate, idPrefix }: { onNavigate?: (() => void) | un
   );
 }
 
+/**
+ * Route guard: keeps twin sections behind a completed profile. Until the stored
+ * twin is hydrated we render a loader; if there is no completed twin and the
+ * user never opted into the demo, we redirect to onboarding.
+ */
+function useTwinGuard() {
+  const { hydrated, isDemo, demoAcknowledged } = useTwin();
+  const navigate = useNavigate();
+  const blocked = hydrated && isDemo && !demoAcknowledged;
+
+  useEffect(() => {
+    if (blocked) void navigate({ to: "/onboarding", replace: true });
+  }, [blocked, navigate]);
+
+  return { ready: hydrated && !blocked };
+}
+
+function ShellLoader() {
+  return (
+    <div className="flex min-h-screen items-center justify-center px-4">
+      <div className="glass flex items-center gap-3 rounded-2xl px-5 py-4 text-sm text-muted-foreground">
+        <Loader2 className="h-4 w-4 animate-spin text-primary" />
+        Loading your digital twin…
+      </div>
+    </div>
+  );
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const { profile } = useTwin();
+  const { ready } = useTwinGuard();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  if (!ready) return <ShellLoader />;
 
   return (
     <div className="relative min-h-screen">
@@ -149,9 +181,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <aside className="fixed left-0 top-0 z-30 hidden h-screen w-[272px] flex-col p-5 lg:flex">
         <div className="glass h-full rounded-3xl p-5">
-          <SidebarInner />
+          <SidebarInner idPrefix="desktop" />
         </div>
       </aside>
+
 
       {open ? (
         <div className="fixed inset-0 z-50 lg:hidden">

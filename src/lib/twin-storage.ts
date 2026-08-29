@@ -1,4 +1,4 @@
-import type { ChatMessage, TwinProfile } from "./twin-types";
+import type { ChatMessage, ProfileVersion, TwinProfile, TwinBackup } from "./twin-types";
 
 /**
  * Small storage layer for the twin. Keeps every key + JSON (de)serialisation in

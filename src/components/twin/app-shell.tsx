@@ -116,7 +116,7 @@ function SidebarInner({ onNavigate, idPrefix }: { onNavigate?: (() => void) | un
       </div>
 
       <div className="flex-1 overflow-y-auto pr-1">
-        <NavList onNavigate={onNavigate} />
+        <NavList onNavigate={onNavigate} idPrefix={idPrefix} />
       </div>
 
       <div className="space-y-1 border-t border-border/60 pt-4">

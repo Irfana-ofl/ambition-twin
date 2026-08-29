@@ -1,5 +1,5 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import { motion } from "framer-motion";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   BarChart3,
   Bot,
@@ -7,6 +7,7 @@ import {
   Compass,
   GaugeCircle,
   LayoutDashboard,
+  Loader2,
   Menu,
   Route as RouteIcon,
   Settings,
@@ -16,11 +17,12 @@ import {
   UserRound,
   X,
 } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { Pill } from "./glass";
 import { useScores, useTwin } from "@/lib/twin-store";
 import { cn } from "@/lib/utils";
+
 
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },

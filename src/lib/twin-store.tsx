@@ -54,6 +54,7 @@ export function TwinProvider({ children }: { children: ReactNode }) {
       profile,
       hydrated,
       isDemo,
+      demoAcknowledged,
       chat,
       setProfile: (p) => persist(p, false),
       update: (patch) => persist({ ...profile, ...patch }, false),
@@ -90,27 +91,26 @@ export function TwinProvider({ children }: { children: ReactNode }) {
         ),
       setChat: (messages) => {
         setChatState(messages);
-        try {
-          localStorage.setItem(CHAT_KEY, JSON.stringify(messages.slice(-40)));
-        } catch {
-          /* storage unavailable */
-        }
+        twinStorage.saveChat(messages);
+      },
+      acknowledgeDemo: () => {
+        setDemoAcknowledged(true);
+        twinStorage.saveDemoAck(true);
       },
       resetToDemo: () => {
-        try {
-          localStorage.removeItem(PROFILE_KEY);
-          localStorage.removeItem(CHAT_KEY);
-        } catch {
-          /* storage unavailable */
-        }
+        twinStorage.clearProfile();
+        twinStorage.clearChat();
         setChatState([]);
         setProfileState(DEMO_PROFILE);
         setIsDemo(true);
+        setDemoAcknowledged(true);
+        twinStorage.saveDemoAck(true);
       },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [profile, chat, hydrated, isDemo],
+    [profile, chat, hydrated, isDemo, demoAcknowledged],
   );
+
 
   return <TwinContext.Provider value={value}>{children}</TwinContext.Provider>;
 }

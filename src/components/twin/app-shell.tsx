@@ -206,7 +206,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               <X className="h-4 w-4" />
             </button>
-            <SidebarInner onNavigate={() => setOpen(false)} />
+            <SidebarInner onNavigate={() => setOpen(false)} idPrefix="mobile" />
           </motion.div>
         </div>
       ) : null}
@@ -243,7 +243,18 @@ export function AppShell({ children }: { children: ReactNode }) {
         </header>
 
         <main className="relative px-4 py-8 lg:px-8">
-          <div className="mx-auto w-full max-w-6xl space-y-8">{children}</div>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={pathname}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              className="mx-auto w-full max-w-6xl space-y-8"
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
     </div>

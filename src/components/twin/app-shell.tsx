@@ -37,7 +37,7 @@ const NAV = [
   { to: "/mentor", label: "AI Mentor", icon: Bot },
 ] as const;
 
-function NavList({ onNavigate, idPrefix = "sidebar" }: { onNavigate?: (() => void) | undefined; idPrefix?: string }) {
+function NavList({ onNavigate, idPrefix = "sidebar" }: { onNavigate?: (() => void) | undefined; idPrefix?: string | undefined }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
     <nav className="space-y-1">
@@ -77,7 +77,7 @@ function NavList({ onNavigate, idPrefix = "sidebar" }: { onNavigate?: (() => voi
 
 }
 
-function SidebarInner({ onNavigate, idPrefix }: { onNavigate?: (() => void) | undefined; idPrefix?: string }) {
+function SidebarInner({ onNavigate, idPrefix }: { onNavigate?: (() => void) | undefined; idPrefix?: string | undefined }) {
   const { profile, isDemo } = useTwin();
   const scores = useScores();
   return (

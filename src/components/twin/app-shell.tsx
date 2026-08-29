@@ -37,7 +37,7 @@ const NAV = [
   { to: "/mentor", label: "AI Mentor", icon: Bot },
 ] as const;
 
-function NavList({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
+function NavList({ onNavigate, idPrefix = "sidebar" }: { onNavigate?: (() => void) | undefined; idPrefix?: string }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
     <nav className="space-y-1">
@@ -48,20 +48,33 @@ function NavList({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
             key={to}
             to={to}
             onClick={onNavigate}
+            aria-current={active ? "page" : undefined}
             className={cn(
-              "group flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-medium transition-all duration-300",
-              active
-                ? "glass text-primary shadow-glass"
-                : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground",
+              "group relative flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-medium transition-all duration-300",
+              active ? "text-primary" : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground",
             )}
           >
-            <Icon className={cn("h-4 w-4 shrink-0 transition-transform group-hover:scale-110", active && "text-primary")} />
-            <span className="truncate">{label}</span>
+            {active ? (
+              <motion.span
+                layoutId={`${idPrefix}-nav-active`}
+                transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                className="glass absolute inset-0 rounded-2xl shadow-glass"
+                aria-hidden
+              />
+            ) : null}
+            <Icon
+              className={cn(
+                "relative h-4 w-4 shrink-0 transition-transform group-hover:scale-110",
+                active && "text-primary",
+              )}
+            />
+            <span className="relative truncate">{label}</span>
           </Link>
         );
       })}
     </nav>
   );
+
 }
 
 function SidebarInner({ onNavigate }: { onNavigate?: (() => void) | undefined }) {

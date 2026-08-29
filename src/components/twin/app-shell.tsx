@@ -1,5 +1,5 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import { motion } from "framer-motion";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   BarChart3,
   Bot,
@@ -7,6 +7,7 @@ import {
   Compass,
   GaugeCircle,
   LayoutDashboard,
+  Loader2,
   Menu,
   Route as RouteIcon,
   Settings,
@@ -16,11 +17,12 @@ import {
   UserRound,
   X,
 } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { Pill } from "./glass";
 import { useScores, useTwin } from "@/lib/twin-store";
 import { cn } from "@/lib/utils";
+
 
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -35,7 +37,7 @@ const NAV = [
   { to: "/mentor", label: "AI Mentor", icon: Bot },
 ] as const;
 
-function NavList({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
+function NavList({ onNavigate, idPrefix = "sidebar" }: { onNavigate?: (() => void) | undefined; idPrefix?: string | undefined }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
     <nav className="space-y-1">
@@ -46,23 +48,36 @@ function NavList({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
             key={to}
             to={to}
             onClick={onNavigate}
+            aria-current={active ? "page" : undefined}
             className={cn(
-              "group flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-medium transition-all duration-300",
-              active
-                ? "glass text-primary shadow-glass"
-                : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground",
+              "group relative flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-medium transition-all duration-300",
+              active ? "text-primary" : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground",
             )}
           >
-            <Icon className={cn("h-4 w-4 shrink-0 transition-transform group-hover:scale-110", active && "text-primary")} />
-            <span className="truncate">{label}</span>
+            {active ? (
+              <motion.span
+                layoutId={`${idPrefix}-nav-active`}
+                transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                className="glass absolute inset-0 rounded-2xl shadow-glass"
+                aria-hidden
+              />
+            ) : null}
+            <Icon
+              className={cn(
+                "relative h-4 w-4 shrink-0 transition-transform group-hover:scale-110",
+                active && "text-primary",
+              )}
+            />
+            <span className="relative truncate">{label}</span>
           </Link>
         );
       })}
     </nav>
   );
+
 }
 
-function SidebarInner({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
+function SidebarInner({ onNavigate, idPrefix }: { onNavigate?: (() => void) | undefined; idPrefix?: string | undefined }) {
   const { profile, isDemo } = useTwin();
   const scores = useScores();
   return (
@@ -101,7 +116,7 @@ function SidebarInner({ onNavigate }: { onNavigate?: (() => void) | undefined })
       </div>
 
       <div className="flex-1 overflow-y-auto pr-1">
-        <NavList onNavigate={onNavigate} />
+        <NavList onNavigate={onNavigate} idPrefix={idPrefix} />
       </div>
 
       <div className="space-y-1 border-t border-border/60 pt-4">
@@ -124,9 +139,41 @@ function SidebarInner({ onNavigate }: { onNavigate?: (() => void) | undefined })
   );
 }
 
+/**
+ * Route guard: keeps twin sections behind a completed profile. Until the stored
+ * twin is hydrated we render a loader; if there is no completed twin and the
+ * user never opted into the demo, we redirect to onboarding.
+ */
+function useTwinGuard() {
+  const { hydrated, isDemo, demoAcknowledged } = useTwin();
+  const navigate = useNavigate();
+  const blocked = hydrated && isDemo && !demoAcknowledged;
+
+  useEffect(() => {
+    if (blocked) void navigate({ to: "/onboarding", replace: true });
+  }, [blocked, navigate]);
+
+  return { ready: hydrated && !blocked };
+}
+
+function ShellLoader() {
+  return (
+    <div className="flex min-h-screen items-center justify-center px-4">
+      <div className="glass flex items-center gap-3 rounded-2xl px-5 py-4 text-sm text-muted-foreground">
+        <Loader2 className="h-4 w-4 animate-spin text-primary" />
+        Loading your digital twin…
+      </div>
+    </div>
+  );
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const { profile } = useTwin();
+  const { ready } = useTwinGuard();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  if (!ready) return <ShellLoader />;
 
   return (
     <div className="relative min-h-screen">
@@ -134,9 +181,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <aside className="fixed left-0 top-0 z-30 hidden h-screen w-[272px] flex-col p-5 lg:flex">
         <div className="glass h-full rounded-3xl p-5">
-          <SidebarInner />
+          <SidebarInner idPrefix="desktop" />
         </div>
       </aside>
+
 
       {open ? (
         <div className="fixed inset-0 z-50 lg:hidden">
@@ -158,7 +206,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               <X className="h-4 w-4" />
             </button>
-            <SidebarInner onNavigate={() => setOpen(false)} />
+            <SidebarInner onNavigate={() => setOpen(false)} idPrefix="mobile" />
           </motion.div>
         </div>
       ) : null}
@@ -195,7 +243,18 @@ export function AppShell({ children }: { children: ReactNode }) {
         </header>
 
         <main className="relative px-4 py-8 lg:px-8">
-          <div className="mx-auto w-full max-w-6xl space-y-8">{children}</div>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={pathname}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              className="mx-auto w-full max-w-6xl space-y-8"
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
     </div>

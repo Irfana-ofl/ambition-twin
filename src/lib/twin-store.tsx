@@ -2,15 +2,15 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 
 import { DEMO_PROFILE } from "./twin-demo";
 import { computeScores } from "./twin-engine";
+import { isProfileComplete, twinStorage } from "./twin-storage";
 import type { ChatMessage, MemoryEntry, TwinProfile } from "./twin-types";
-
-const PROFILE_KEY = "twinai.profile.v1";
-const CHAT_KEY = "twinai.chat.v1";
 
 type Store = {
   profile: TwinProfile;
   hydrated: boolean;
   isDemo: boolean;
+  /** True once the user chose to explore with the demo twin. */
+  demoAcknowledged: boolean;
   chat: ChatMessage[];
   setProfile: (p: TwinProfile) => void;
   update: (patch: Partial<TwinProfile>) => void;
@@ -18,53 +18,43 @@ type Store = {
   toggleDay: (day: number) => void;
   addMemory: (text: string, tag: MemoryEntry["tag"]) => void;
   setChat: (messages: ChatMessage[]) => void;
+  acknowledgeDemo: () => void;
   resetToDemo: () => void;
 };
 
 const TwinContext = createContext<Store | null>(null);
-
-function read<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
-  } catch {
-    return fallback;
-  }
-}
 
 export function TwinProvider({ children }: { children: ReactNode }) {
   const [profile, setProfileState] = useState<TwinProfile>(DEMO_PROFILE);
   const [chat, setChatState] = useState<ChatMessage[]>([]);
   const [hydrated, setHydrated] = useState(false);
   const [isDemo, setIsDemo] = useState(true);
+  const [demoAcknowledged, setDemoAcknowledged] = useState(false);
 
   useEffect(() => {
-    const stored = read<TwinProfile | null>(PROFILE_KEY, null);
-    if (stored && stored.name) {
+    const stored = twinStorage.loadProfile();
+    if (isProfileComplete(stored)) {
       setProfileState(stored);
       setIsDemo(false);
     }
-    setChatState(read<ChatMessage[]>(CHAT_KEY, []));
+    setChatState(twinStorage.loadChat());
+    setDemoAcknowledged(twinStorage.loadDemoAck());
     setHydrated(true);
   }, []);
 
   const persist = (p: TwinProfile, demo = false) => {
     setProfileState(p);
     setIsDemo(demo);
-    if (!demo) {
-      try {
-        localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
-      } catch {
-        /* storage unavailable */
-      }
-    }
+    if (!demo) twinStorage.saveProfile(p);
   };
+
 
   const value = useMemo<Store>(
     () => ({
       profile,
       hydrated,
       isDemo,
+      demoAcknowledged,
       chat,
       setProfile: (p) => persist(p, false),
       update: (patch) => persist({ ...profile, ...patch }, false),
@@ -101,27 +91,26 @@ export function TwinProvider({ children }: { children: ReactNode }) {
         ),
       setChat: (messages) => {
         setChatState(messages);
-        try {
-          localStorage.setItem(CHAT_KEY, JSON.stringify(messages.slice(-40)));
-        } catch {
-          /* storage unavailable */
-        }
+        twinStorage.saveChat(messages);
+      },
+      acknowledgeDemo: () => {
+        setDemoAcknowledged(true);
+        twinStorage.saveDemoAck(true);
       },
       resetToDemo: () => {
-        try {
-          localStorage.removeItem(PROFILE_KEY);
-          localStorage.removeItem(CHAT_KEY);
-        } catch {
-          /* storage unavailable */
-        }
+        twinStorage.clearProfile();
+        twinStorage.clearChat();
         setChatState([]);
         setProfileState(DEMO_PROFILE);
         setIsDemo(true);
+        setDemoAcknowledged(true);
+        twinStorage.saveDemoAck(true);
       },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [profile, chat, hydrated, isDemo],
+    [profile, chat, hydrated, isDemo, demoAcknowledged],
   );
+
 
   return <TwinContext.Provider value={value}>{children}</TwinContext.Provider>;
 }

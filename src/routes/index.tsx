@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, BrainCircuit, Compass, Gauge, Layers, Play, Sparkles } from "lucide-react";
 
 import { GlassCard, Pill } from "@/components/twin/glass";
+import { useTwin } from "@/lib/twin-store";
 import { FloatingLabel, TwinOrb } from "@/components/twin/twin-orb";
 
 export const Route = createFileRoute("/")({
@@ -41,6 +42,7 @@ const FEATURES = [
 ];
 
 function Landing() {
+  const { acknowledgeDemo } = useTwin();
   return (
     <div className="relative min-h-screen overflow-hidden">
       <div className="pointer-events-none absolute inset-0 grid-bg" aria-hidden />
@@ -71,6 +73,7 @@ function Landing() {
         <div className="flex items-center gap-2">
           <Link
             to="/dashboard"
+            onClick={acknowledgeDemo}
             className="rounded-xl px-3.5 py-2 text-sm font-semibold text-foreground transition-colors hover:text-primary"
           >
             Explore Demo
@@ -111,6 +114,7 @@ function Landing() {
             </Link>
             <Link
               to="/dashboard"
+              onClick={acknowledgeDemo}
               className="glass glass-lift inline-flex items-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-semibold text-foreground"
             >
               <Play className="h-4 w-4 text-primary" /> Explore Demo

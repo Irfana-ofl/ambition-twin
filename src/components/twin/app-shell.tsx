@@ -20,6 +20,7 @@ import {
 import { useEffect, useState, type ReactNode } from "react";
 
 import { Pill } from "./glass";
+import { SaveIndicator } from "./save-indicator";
 import { useScores, useTwin } from "@/lib/twin-store";
 import { cn } from "@/lib/utils";
 

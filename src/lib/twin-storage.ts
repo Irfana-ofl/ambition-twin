@@ -8,6 +8,7 @@ const KEYS = {
   profile: "twinai.profile.v1",
   chat: "twinai.chat.v1",
   demoAck: "twinai.demo-ack.v1",
+  versions: "twinai.versions.v1",
 } as const;
 
 function available() {

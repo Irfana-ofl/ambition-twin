@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Circle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { GlassCard, Pill } from "@/components/twin/glass";
+import { GlassCard, Meter, Pill } from "@/components/twin/glass";
 import { TwinOrb } from "@/components/twin/twin-orb";
+import { completenessScore, profileChecklist } from "@/lib/twin-completeness";
 import { computeScores, LEVELS, makeSkill, ROLES } from "@/lib/twin-engine";
 import { INTEREST_LIBRARY, SKILL_LIBRARY } from "@/lib/twin-demo";
 import { emptyProfile, useTwin } from "@/lib/twin-store";

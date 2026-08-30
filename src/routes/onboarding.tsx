@@ -37,6 +37,11 @@ function OnboardingPage() {
 
   const set = (patch: Partial<TwinProfile>) => setDraft((d) => ({ ...d, ...patch }));
 
+  const checklist = profileChecklist(draft, Object.keys(skillLevels).length);
+  const completeness = completenessScore(checklist);
+  const missingRequired = checklist.filter((c) => c.required && !c.done);
+  const nextSteps = checklist.filter((c) => !c.done).slice(0, 3);
+
   const toggleSkill = (name: string) => {
     setSkillLevels((prev) => {
       const next = { ...prev };

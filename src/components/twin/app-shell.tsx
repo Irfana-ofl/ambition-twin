@@ -20,6 +20,7 @@ import {
 import { useEffect, useState, type ReactNode } from "react";
 
 import { Pill } from "./glass";
+import { SaveIndicator } from "./save-indicator";
 import { useScores, useTwin } from "@/lib/twin-store";
 import { cn } from "@/lib/utils";
 
@@ -229,6 +230,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <span className="text-sm font-semibold sm:hidden">TwinAI</span>
             </div>
             <div className="flex items-center gap-3">
+              <SaveIndicator />
               <Link
                 to="/mentor"
                 className="hidden rounded-xl bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5 sm:block"

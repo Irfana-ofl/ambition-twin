@@ -8,6 +8,7 @@ const KEYS = {
   profile: "twinai.profile.v1",
   chat: "twinai.chat.v1",
   demoAck: "twinai.demo-ack.v1",
+  versions: "twinai.versions.v1",
 } as const;
 
 function available() {
@@ -47,6 +48,8 @@ export function isProfileComplete(profile: TwinProfile | null): profile is TwinP
   return !!profile && profile.name.trim().length > 0 && profile.skills.length > 0 && !!profile.targetRole;
 }
 
+const MAX_VERSIONS = 12;
+
 export const twinStorage = {
   loadProfile: () => read<TwinProfile | null>(KEYS.profile, null),
   saveProfile: (profile: TwinProfile) => write(KEYS.profile, profile),
@@ -58,4 +61,31 @@ export const twinStorage = {
 
   loadDemoAck: () => read<boolean>(KEYS.demoAck, false),
   saveDemoAck: (value: boolean) => write(KEYS.demoAck, value),
+
+  loadVersions: () => read<ProfileVersion[]>(KEYS.versions, []),
+  saveVersions: (versions: ProfileVersion[]) => write(KEYS.versions, versions.slice(-MAX_VERSIONS)),
+  clearVersions: () => remove(KEYS.versions),
 };
+
+/** Builds the portable backup object used by export. */
+export function buildBackup(profile: TwinProfile, chat: ChatMessage[]): TwinBackup {
+  return { app: "twinai", version: 1, exportedAt: new Date().toISOString(), profile, chat };
+}
+
+/** Validates an imported file just enough to trust it as a twin profile. */
+export function parseBackup(raw: string): TwinBackup | null {
+  try {
+    const data = JSON.parse(raw) as Partial<TwinBackup> & { name?: string };
+    const profile = (data.profile ?? (data as unknown as TwinProfile)) as TwinProfile | undefined;
+    if (!profile || typeof profile.name !== "string" || !Array.isArray(profile.skills)) return null;
+    return {
+      app: "twinai",
+      version: 1,
+      exportedAt: data.exportedAt ?? new Date().toISOString(),
+      profile,
+      ...(Array.isArray(data.chat) ? { chat: data.chat } : {}),
+    };
+  } catch {
+    return null;
+  }
+}

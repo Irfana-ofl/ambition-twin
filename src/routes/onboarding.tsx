@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Circle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { GlassCard, Pill } from "@/components/twin/glass";
+import { GlassCard, Meter, Pill } from "@/components/twin/glass";
 import { TwinOrb } from "@/components/twin/twin-orb";
+import { completenessScore, profileChecklist } from "@/lib/twin-completeness";
 import { computeScores, LEVELS, makeSkill, ROLES } from "@/lib/twin-engine";
 import { INTEREST_LIBRARY, SKILL_LIBRARY } from "@/lib/twin-demo";
 import { emptyProfile, useTwin } from "@/lib/twin-store";
@@ -35,6 +36,11 @@ function OnboardingPage() {
   );
 
   const set = (patch: Partial<TwinProfile>) => setDraft((d) => ({ ...d, ...patch }));
+
+  const checklist = profileChecklist(draft, Object.keys(skillLevels).length);
+  const completeness = completenessScore(checklist);
+  const missingRequired = checklist.filter((c) => c.required && !c.done);
+  const nextSteps = checklist.filter((c) => !c.done).slice(0, 3);
 
   const toggleSkill = (name: string) => {
     setSkillLevels((prev) => {
@@ -252,6 +258,65 @@ function OnboardingPage() {
               </button>
             )}
           </div>
+        </GlassCard>
+
+        <GlassCard delay={0.05} className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="font-display text-lg font-semibold text-foreground">Twin completeness</h2>
+            {completeness === 100 ? (
+              <Pill tone="success">Fully complete</Pill>
+            ) : (
+              <Pill tone={missingRequired.length ? "warning" : "cyan"}>
+                {missingRequired.length ? `${missingRequired.length} required left` : "Optional details left"}
+              </Pill>
+            )}
+          </div>
+          <Meter value={completeness} label="Profile completeness" tone={completeness >= 80 ? "success" : "primary"} />
+
+          <ul className="space-y-2">
+            {checklist.map((c) => (
+              <li key={c.id}>
+                <button
+                  onClick={() => setStep(c.step)}
+                  className={cn(
+                    "flex w-full items-start gap-3 rounded-2xl px-4 py-3 text-left transition-colors",
+                    c.done ? "bg-success/10" : "bg-secondary/60 hover:bg-secondary",
+                  )}
+                >
+                  {c.done ? (
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+                  ) : (
+                    <Circle className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                  )}
+                  <span className="flex-1">
+                    <span className="flex flex-wrap items-center gap-2">
+                      <span className={cn("text-sm font-semibold", c.done ? "text-muted-foreground" : "text-foreground")}>
+                        {c.label}
+                      </span>
+                      {c.required ? <Pill tone="warning">Required</Pill> : <Pill>Optional</Pill>}
+                    </span>
+                    <span className="mt-1 block text-xs text-muted-foreground">{c.hint}</span>
+                  </span>
+                  <span className="text-xs font-semibold text-primary">{c.done ? "" : `Step ${c.step + 1} →`}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          {nextSteps.length ? (
+            <div className="rounded-2xl bg-primary/8 p-4">
+              <p className="text-xs font-semibold uppercase tracking-widest text-primary">Next steps</p>
+              <ol className="mt-2 space-y-1.5 text-sm text-foreground">
+                {nextSteps.map((c, i) => (
+                  <li key={c.id}>
+                    {i + 1}. {c.label} — <span className="text-muted-foreground">{c.hint}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ) : (
+            <p className="text-sm text-success">Everything captured — your twin has the full picture.</p>
+          )}
         </GlassCard>
       </div>
     </div>

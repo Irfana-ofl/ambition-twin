@@ -59,6 +59,25 @@ export type ChatMessage = {
   structured?: TwinAnswer;
 };
 
+/** A point-in-time snapshot of the profile so the user can revert changes. */
+export type ProfileVersion = {
+  id: string;
+  at: string;
+  label: string;
+  profile: TwinProfile;
+};
+
+/** Portable backup written by export / read by import. */
+export type TwinBackup = {
+  app: "twinai";
+  version: 1;
+  exportedAt: string;
+  profile: TwinProfile;
+  chat?: ChatMessage[];
+};
+
+export type SaveState = "idle" | "saving" | "saved";
+
 export type TwinAnswer = {
   recommendation: string;
   why: string;

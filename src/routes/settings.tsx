@@ -109,6 +109,54 @@ function SettingsPage() {
           </button>
         </div>
       </GlassCard>
+
+      <GlassCard delay={0.1} className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 className="font-display text-lg font-semibold text-foreground">Version history</h2>
+            <p className="text-sm text-muted-foreground">
+              Every change autosaves. The last {versions.length ? versions.length : "few"} snapshots are kept so you can roll back.
+            </p>
+          </div>
+          {versions.length ? (
+            <button
+              onClick={() => {
+                clearVersions();
+                toast.success("Version history cleared.");
+              }}
+              className="rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-semibold text-muted-foreground"
+            >
+              Clear history
+            </button>
+          ) : null}
+        </div>
+
+        {versions.length ? (
+          <ul className="space-y-2">
+            {[...versions].reverse().map((v) => (
+              <li key={v.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-secondary/60 px-4 py-3">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{v.label}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(v.at).toLocaleString()} · {v.profile.skills.length} skills · {v.profile.projects.length} projects
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    revertTo(v.id);
+                    toast.success(`Reverted: ${v.label}`);
+                  }}
+                  className="inline-flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" /> Revert
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-muted-foreground">No snapshots yet — make a change and it will appear here.</p>
+        )}
+      </GlassCard>
     </AppShell>
   );
 }

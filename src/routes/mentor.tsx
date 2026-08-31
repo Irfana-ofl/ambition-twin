@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/twin/app-shell";
 import { GlassCard, Pill, SectionHeader, ThinkingIndicator } from "@/components/twin/glass";
+import { ReasoningRecap } from "@/components/twin/reasoning-recap";
 import { askTwin } from "@/lib/twin-ai.functions";
 import { buildTwinContext, engineAnswer } from "@/lib/twin-engine";
 import { useTwin } from "@/lib/twin-store";
@@ -92,6 +93,8 @@ function MentorPage() {
         title="Talk to your twin"
         subtitle={`It already knows your ${profile.skills.length} skills, ${profile.projects.length} projects and your goal of becoming a ${profile.targetRole}.`}
       />
+
+      <ReasoningRecap />
 
       <div className="flex flex-wrap gap-2">
         {SUGGESTIONS.map((s) => (

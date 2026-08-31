@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { AppShell } from "@/components/twin/app-shell";
 import { GlassCard, Meter, Pill, ScoreRing, SectionHeader } from "@/components/twin/glass";

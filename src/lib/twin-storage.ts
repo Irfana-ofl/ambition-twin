@@ -9,6 +9,8 @@ const KEYS = {
   chat: "twinai.chat.v1",
   demoAck: "twinai.demo-ack.v1",
   versions: "twinai.versions.v1",
+  draft: "twinai.onboarding-draft.v1",
+  aiRoadmap: "twinai.ai-roadmap.v1",
 } as const;
 
 function available() {
@@ -61,6 +63,14 @@ export const twinStorage = {
 
   loadDemoAck: () => read<boolean>(KEYS.demoAck, false),
   saveDemoAck: (value: boolean) => write(KEYS.demoAck, value),
+
+  loadDraft: <T,>() => read<T | null>(KEYS.draft, null),
+  saveDraft: (draft: unknown) => write(KEYS.draft, draft),
+  clearDraft: () => remove(KEYS.draft),
+
+  loadAiRoadmap: <T,>() => read<T | null>(KEYS.aiRoadmap, null),
+  saveAiRoadmap: (value: unknown) => write(KEYS.aiRoadmap, value),
+  clearAiRoadmap: () => remove(KEYS.aiRoadmap),
 
   loadVersions: () => read<ProfileVersion[]>(KEYS.versions, []),
   saveVersions: (versions: ProfileVersion[]) => write(KEYS.versions, versions.slice(-MAX_VERSIONS)),

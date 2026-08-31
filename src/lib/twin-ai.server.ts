@@ -84,3 +84,81 @@ export async function askGateway({ question, context, history }: AskArgs): Promi
     return null;
   }
 }
+
+const ROADMAP_PROMPT = `You are the planning engine of "TwinAI", a student's personal AI digital twin.
+
+You are given a single student's authoritative profile: skills with percentages, projects, experience, interests, target role, timeline, daily study hours and engine-computed skill gaps.
+
+Produce a phased learning roadmap that is specific to THIS student. Hard rules:
+- Never generic. Every task must name a real skill, project or gap from their profile.
+- Order phases so each one unblocks the next, weighted by career relevance to their target role.
+- Fit the total plan inside their stated timeline and daily study hours.
+- Between 4 and 5 phases, each with 3 or 4 tasks. No emojis, no markdown.
+
+Reply with ONLY a JSON object, no code fences, exactly:
+{"phases":[{"title":string,"subtitle":string,"weeks":string,"tasks":[{"label":string,"skill":string,"outcome":string}]}]}`;
+
+export type AiPhase = {
+  id: string;
+  title: string;
+  subtitle: string;
+  weeks: string;
+  tasks: { id: string; label: string; skill: string; outcome: string }[];
+};
+
+export async function roadmapGateway(context: string): Promise<AiPhase[] | null> {
+  const apiKey = process.env["LOVABLE_API_KEY"];
+  if (!apiKey) return null;
+
+  const res = await fetch(GATEWAY, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Lovable-API-Key": apiKey,
+      "X-Lovable-AIG-SDK": "fetch",
+    },
+    body: JSON.stringify({
+      model: "google/gemini-3.7-flash",
+      messages: [
+        { role: "system", content: ROADMAP_PROMPT },
+        { role: "user", content: `STUDENT PROFILE (authoritative):\n${context}\n\nGenerate the roadmap as JSON.` },
+      ],
+      response_format: { type: "json_object" },
+    }),
+  });
+
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "");
+    throw Object.assign(new Error(`AI gateway error ${res.status}: ${detail.slice(0, 300)}`), { status: res.status });
+  }
+
+  const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+  const raw = (data.choices?.[0]?.message?.content ?? "").replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+  try {
+    const parsed = JSON.parse(raw) as {
+      phases?: { title?: string; subtitle?: string; weeks?: string; tasks?: { label?: string; skill?: string; outcome?: string }[] }[];
+    };
+    const phases = (parsed.phases ?? [])
+      .filter((p) => p.title && Array.isArray(p.tasks) && p.tasks.length)
+      .slice(0, 6)
+      .map((p, i) => ({
+        id: `ai-p${i + 1}`,
+        title: String(p.title),
+        subtitle: String(p.subtitle ?? ""),
+        weeks: String(p.weeks ?? `Phase ${i + 1}`),
+        tasks: (p.tasks ?? [])
+          .filter((t) => t.label)
+          .slice(0, 5)
+          .map((t, j) => ({
+            id: `ai-p${i + 1}t${j + 1}`,
+            label: String(t.label),
+            skill: String(t.skill ?? ""),
+            outcome: String(t.outcome ?? ""),
+          })),
+      }))
+      .filter((p) => p.tasks.length);
+    return phases.length >= 2 ? phases : null;
+  } catch {
+    return null;
+  }
+}

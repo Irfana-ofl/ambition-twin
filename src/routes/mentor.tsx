@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/twin/app-shell";
 import { GlassCard, Pill, SectionHeader, ThinkingIndicator } from "@/components/twin/glass";
+import { ReasoningRecap } from "@/components/twin/reasoning-recap";
 import { askTwin } from "@/lib/twin-ai.functions";
 import { buildTwinContext, engineAnswer } from "@/lib/twin-engine";
 import { useTwin } from "@/lib/twin-store";

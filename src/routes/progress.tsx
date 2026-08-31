@@ -41,23 +41,35 @@ function ProgressPage() {
       />
 
       <div className="grid gap-5 lg:grid-cols-3">
-        <GlassCard className="flex items-center justify-center">
-          <ScoreRing value={scores.readiness} label="Readiness now" caption={readinessLabel(scores.readiness)} />
-        </GlassCard>
-        <GlassCard delay={0.05} className="space-y-4">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Change since baseline</p>
-            <p className="font-display text-3xl font-semibold text-foreground">
-              {delta >= 0 ? "+" : ""}
-              {delta} pts
-            </p>
-            <Pill tone={delta >= 0 ? "success" : "warning"}>Baseline {profile.baselineReadiness}%</Pill>
-          </div>
-          <Meter value={scores.consistency} label="Consistency" tone="success" />
-        </GlassCard>
-        <GlassCard delay={0.1} className="space-y-4">
-          <Meter value={taskPct} label={`Roadmap · ${profile.completedTasks.length}/${tasks.length} tasks`} tone="primary" />
-          <Meter value={dayPct} label={`30-day plan · ${profile.completedDays.length}/${plan.length} days`} tone="violet" />
+        <Link to="/career" className="block focus-visible:outline-none">
+          <GlassCard className="flex h-full flex-col items-center justify-center gap-2">
+            <ScoreRing value={scores.readiness} label="Readiness now" caption={readinessLabel(scores.readiness)} />
+            <span className="text-xs font-semibold text-primary">See readiness breakdown →</span>
+          </GlassCard>
+        </Link>
+        <Link to="/skills" className="block focus-visible:outline-none">
+          <GlassCard delay={0.05} className="h-full space-y-4">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">Change since baseline</p>
+              <p className="font-display text-3xl font-semibold text-foreground">
+                {delta >= 0 ? "+" : ""}
+                {delta} pts
+              </p>
+              <Pill tone={delta >= 0 ? "success" : "warning"}>Baseline {profile.baselineReadiness}%</Pill>
+            </div>
+            <Meter value={scores.consistency} label="Consistency" tone="success" />
+            <span className="block text-xs font-semibold text-primary">Open skill intelligence →</span>
+          </GlassCard>
+        </Link>
+        <GlassCard delay={0.1} className="h-full space-y-4">
+          <Link to="/roadmap" className="block">
+            <Meter value={taskPct} label={`Roadmap · ${profile.completedTasks.length}/${tasks.length} tasks`} tone="primary" />
+            <span className="mt-1 block text-xs font-semibold text-primary">Tick roadmap tasks →</span>
+          </Link>
+          <Link to="/plan" className="block">
+            <Meter value={dayPct} label={`30-day plan · ${profile.completedDays.length}/${plan.length} days`} tone="violet" />
+            <span className="mt-1 block text-xs font-semibold text-primary">Open 30-day plan →</span>
+          </Link>
         </GlassCard>
       </div>
 

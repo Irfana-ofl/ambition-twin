@@ -21,7 +21,7 @@ export const Route = createFileRoute("/settings")({
 });
 
 function SettingsPage() {
-  const { profile, update, resetToDemo, isDemo, setChat } = useTwin();
+  const { profile, update, resetToDemo, isDemo, setChat, versions, revertTo, clearVersions } = useTwin();
 
   return (
     <AppShell>

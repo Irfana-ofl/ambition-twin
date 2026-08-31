@@ -93,6 +93,8 @@ function MentorPage() {
         subtitle={`It already knows your ${profile.skills.length} skills, ${profile.projects.length} projects and your goal of becoming a ${profile.targetRole}.`}
       />
 
+      <ReasoningRecap />
+
       <div className="flex flex-wrap gap-2">
         {SUGGESTIONS.map((s) => (
           <button
